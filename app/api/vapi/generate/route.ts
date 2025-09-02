@@ -30,12 +30,19 @@ export async function POST(request: Request) {
       type: type,
       level: level,
       techstack: techstack.split(","),
-      questions: JSON.parse(questions),
+      questions: [],
       userId: userid,
       finalized: true,
       coverImage: getRandomInterviewCover(),
       createdAt: new Date().toISOString(),
     };
+
+    try {
+      interview.questions = JSON.parse(questions);
+    } catch (parseError) {
+      console.error("Error parsing questions JSON:", parseError);
+      return Response.json({ success: false, error: "Failed to parse questions from AI model." }, { status: 500 });
+    }
 
     await db.collection("interviews").add(interview);
 
